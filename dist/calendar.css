@@ -116,6 +116,12 @@
 .ui.calendar .ui.table tr td.today {
   font-weight: bold;
 }
+.ui.calendar .ui.table tr td.week {
+  font-weight: bold;
+  background: rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, 0.95);
+  box-shadow: none;
+}
 .ui.calendar .ui.table tr td.range {
   background: rgba(0, 0, 0, 0.05);
   color: rgba(0, 0, 0, 0.95);

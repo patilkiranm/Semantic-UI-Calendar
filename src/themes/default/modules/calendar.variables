@@ -6,6 +6,10 @@
 @focusInvertedBoxShadow: inset 0 0 0 1px @focusedFormBorderColor;
 
 @todayFontWeight: bold;
+@weekFontWeight: bold;
+@weekBackground: @transparentBlack;
+@weekTextColor: @selectedTextColor;
+@weekBoxShadow: none;
 
 @rangeBackground: @transparentBlack;
 @rangeTextColor: @selectedTextColor;

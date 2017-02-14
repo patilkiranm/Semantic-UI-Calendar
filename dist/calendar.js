@@ -203,8 +203,24 @@
               var startMonth = display.getMonth() + monthOffset;
               var year = display.getFullYear();
 
+
               var columns = isDay ? 7 : isHour ? 4 : 3;
-              var columnsString = columns === 7 ? 'seven' : columns === 4 ? 'four' : 'three';
+              var colspan = isDay ? (isDay && settings.week ? 8 : 7) : columns;
+              var columnsString = 'three';
+              switch(colspan){
+                case 8:
+                  columnsString = 'eight';
+                  break;
+                case 7:
+                  columnsString = 'seven';
+                  break;
+                case 4:
+                  columnsString = 'four';
+                  break;
+                default:
+                  columnsString = 'three';
+                  break;
+              }
               var rows = isDay || isHour ? 6 : 4;
               var pages = isDay ? multiMonth : 1;
 
@@ -246,7 +262,7 @@
                   var thead = $('<thead/>').appendTo(table);
 
                   row = $('<tr/>').appendTo(thead);
-                  cell = $('<th/>').attr('colspan', '' + columns).appendTo(row);
+                  cell = $('<th/>').attr('colspan', '' + colspan).appendTo(row);
 
                   var headerDate = isYear || isMonth ? new Date(year, 0, 1) :
                     isDay ? new Date(year, month, 1) : new Date(year, month, day, hour, minute);
@@ -272,6 +288,10 @@
 
                   if (isDay) {
                     row = $('<tr/>').appendTo(thead);
+                    if(settings.week){
+                      cell = $('<th/>').appendTo(row);
+                      cell.text('');
+                    }
                     for (i = 0; i < columns; i++) {
                       cell = $('<th/>').appendTo(row);
                       cell.text(formatter.dayColumnHeader((i + settings.firstDayOfWeek) % 7, settings));
@@ -283,6 +303,10 @@
                 i = isYear ? Math.ceil(year / 10) * 10 - 9 : isDay ? 1 - firstMonthDayColumn : 0;
                 for (r = 0; r < rows; r++) {
                   row = $('<tr/>').appendTo(tbody);
+                  if(isDay && settings.week){
+                    cell = $('<td/>').addClass(className.weekCell).appendTo(row);
+                    cell.text(formatter.getWeekNumber(new Date(year, month, i)));
+                  }
                   for (c = 0; c < columns; c++, i++) {
                     var cellDate = isYear ? new Date(i, month, 1, hour, minute) :
                       isMonth ? new Date(year, i, 1, hour, minute) : isDay ? new Date(year, month, i, hour, minute) :
@@ -312,7 +336,7 @@
 
                 if (settings.today) {
                   var todayRow = $('<tr/>').appendTo(tbody);
-                  var todayButton = $('<td/>').attr('colspan', '' + columns).addClass(className.today).appendTo(todayRow);
+                  var todayButton = $('<td/>').attr('colspan', '' + colspan).addClass(className.today).appendTo(todayRow);
                   todayButton.text(formatter.today(settings));
                   todayButton.data(metadata.date, today);
                 }
@@ -985,6 +1009,7 @@
     firstDayOfWeek: 0,    // day for first day column (0 = Sunday)
     constantHeight: true, // add rows to shorter months to keep day calendar height consistent (6 rows)
     today: false,         // show a 'today/now' button at the bottom of the calendar
+    week: false,          // show week numbers as first column in day mode
     closable: true,       // close the popup after selecting a date/time
     monthFirst: true,     // month before day when parsing/converting date from/to text
     touchReadonly: true,  // set input to readonly on touch devices
@@ -1049,6 +1074,18 @@
       },
       dayColumnHeader: function (day, settings) {
         return settings.text.days[day];
+      },
+      getWeekNumber: function(date) {
+          // Copy date so don't modify original
+          var d = new Date(+date);
+          d.setHours(0,0,0,0);
+          // Set to nearest Thursday: current date + 4 - current day number
+          // Make Sunday's day number 7
+          d.setDate(d.getDate() + 4 - (d.getDay()||7));
+          // Get first day of year
+          var yearStart = new Date(d.getFullYear(),0,1);
+          // Calculate full weeks to nearest Thursday
+          return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
       },
       datetime: function (date, settings) {
         if (!date) {
@@ -1342,6 +1379,7 @@
       nextIcon: 'chevron right icon',
       link: 'link',
       cell: 'link',
+      weekCell: 'week',
       disabledCell: 'disabled',
       adjacentCell: 'adjacent',
       activeCell: 'active',
