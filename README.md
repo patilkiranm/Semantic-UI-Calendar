@@ -81,6 +81,7 @@ The following settings are supported by this module:
     firstDayOfWeek: 0,    // day for first day column (0 = Sunday)
     constantHeight: true, // add rows to shorter months to keep day calendar height consistent (6 rows)
     today: false,         // show a 'today/now' button at the bottom of the calendar
+    week: false,          // show week numbers as first column in day mode
     closable: true,       // close the popup after selecting a date/time
     monthFirst: true,     // month before day when parsing/converting date from/to text
     touchReadonly: true,  // set input to readonly on touch devices
@@ -139,6 +140,9 @@ The following settings are supported by this module:
       dayColumnHeader: function (day, settings) {
         //return a abbreviated day string to show above each column in day mode
       },
+      getWeekNumber: function(date) {
+        //return week number
+      }
       datetime: function (date, settings) {
         //return a formatted string representing the date & time of 'date'
       },
@@ -150,6 +154,10 @@ The following settings are supported by this module:
       },
       today: function (settings) {
         return settings.type === 'date' ? settings.text.today : settings.text.now;
+      },
+      cell: function (cell, date, cellOptions) {
+        //customize the calendar cell, cellOptions is:
+        //{ mode: string, adjacent: boolean, disabled: boolean, active: boolean, today: boolean }
       }
     },
 
@@ -160,7 +168,7 @@ The following settings are supported by this module:
     },
 
     // callback when date changes, return false to cancel the change
-    onChange: function (date, text) {
+    onChange: function (date, text, mode) {
     },
 
     // callback before show animation, return false to prevent show

@@ -320,12 +320,24 @@
                     var adjacent = isDay && cellDate.getMonth() !== ((month + 12) % 12);
                     var disabled = adjacent || !module.helper.isDateInRange(cellDate, mode) || settings.isDisabled(cellDate, mode);
                     var active = module.helper.dateEqual(cellDate, date, mode);
+                    var isToday = module.helper.dateEqual(cellDate, today, mode);
                     cell.toggleClass(className.adjacentCell, adjacent);
                     cell.toggleClass(className.disabledCell, disabled);
                     cell.toggleClass(className.activeCell, active && !adjacent);
                     if (!isHour && !isMinute) {
-                      cell.toggleClass(className.todayCell, !adjacent && module.helper.dateEqual(cellDate, today, mode));
+                      cell.toggleClass(className.todayCell, !adjacent && isToday);
                     }
+
+                    // Allow for external modifications of each cell
+                    var cellOptions = {
+                      mode: mode,
+                      adjacent: adjacent,
+                      disabled: disabled,
+                      active: active,
+                      today: isToday
+                    };
+                    formatter.cell(cell, cellDate, cellOptions);
+
                     if (module.helper.dateEqual(cellDate, focusDate, mode)) {
                       //ensure that the focus date is exactly equal to the cell date
                       //so that, if selected, the correct value is set
@@ -598,14 +610,14 @@
               date = module.helper.sanitiseDate(date);
               date = module.helper.dateInRange(date);
 
+              var mode = module.get.mode();
               var text = formatter.datetime(date, settings);
-              if (fireChange && settings.onChange.call(element, date, text) === false) {
+              if (fireChange && settings.onChange.call(element, date, text, mode) === false) {
                 return false;
               }
 
               module.set.focusDate(date);
 
-              var mode = module.get.mode();
               if (settings.isDisabled(date, mode)) {
                 return false;
               }
@@ -1076,15 +1088,10 @@
         return settings.text.days[day];
       },
       getWeekNumber: function(date) {
-          // Copy date so don't modify original
           var d = new Date(+date);
           d.setHours(0,0,0,0);
-          // Set to nearest Thursday: current date + 4 - current day number
-          // Make Sunday's day number 7
           d.setDate(d.getDate() + 4 - (d.getDay()||7));
-          // Get first day of year
           var yearStart = new Date(d.getFullYear(),0,1);
-          // Calculate full weeks to nearest Thursday
           return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
       },
       datetime: function (date, settings) {
@@ -1122,6 +1129,8 @@
       },
       today: function (settings) {
         return settings.type === 'date' ? settings.text.today : settings.text.now;
+      },
+      cell: function (cell, date, cellOptions) {
       }
     },
 
@@ -1325,7 +1334,7 @@
     },
 
     // callback when date changes, return false to cancel the change
-    onChange: function (date, text) {
+    onChange: function (date, text, mode) {
       return true;
     },
 
