@@ -82,6 +82,7 @@ The following settings are supported by this module:
     constantHeight: true, // add rows to shorter months to keep day calendar height consistent (6 rows)
     today: false,         // show a 'today/now' button at the bottom of the calendar
     week: false,          // show week numbers as first column in day mode
+    adjacentSelectable: false, // Is adjacent month day selection enabled (in day mode)
     closable: true,       // close the popup after selecting a date/time
     monthFirst: true,     // month before day when parsing/converting date from/to text
     touchReadonly: true,  // set input to readonly on touch devices

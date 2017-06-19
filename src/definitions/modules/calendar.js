@@ -318,7 +318,7 @@
                     cell.text(cellText);
                     cell.data(metadata.date, cellDate);
                     var adjacent = isDay && cellDate.getMonth() !== ((month + 12) % 12);
-                    var disabled = adjacent || !module.helper.isDateInRange(cellDate, mode) || settings.isDisabled(cellDate, mode);
+                    var disabled = (!settings.adjacentSelectable && adjacent) || !module.helper.isDateInRange(cellDate, mode) || settings.isDisabled(cellDate, mode);
                     var active = module.helper.dateEqual(cellDate, date, mode);
                     var isToday = module.helper.dateEqual(cellDate, today, mode);
                     cell.toggleClass(className.adjacentCell, adjacent);
@@ -1022,6 +1022,7 @@
     constantHeight: true, // add rows to shorter months to keep day calendar height consistent (6 rows)
     today: false,         // show a 'today/now' button at the bottom of the calendar
     week: false,          // show week numbers as first column in day mode
+    adjacentSelectable: false, // Is adjacent month day selection enabled (in day mode)
     closable: true,       // close the popup after selecting a date/time
     monthFirst: true,     // month before day when parsing/converting date from/to text
     touchReadonly: true,  // set input to readonly on touch devices
