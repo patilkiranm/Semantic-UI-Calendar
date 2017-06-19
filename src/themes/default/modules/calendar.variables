@@ -12,6 +12,7 @@
 @weekBoxShadow: none;
 
 @adjacentBackground: @darkWhite;
+@adjacentTextColor: @lightBlack;
 
 @rangeBackground: @transparentBlack;
 @rangeTextColor: @selectedTextColor;

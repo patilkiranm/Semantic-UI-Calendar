@@ -110,6 +110,7 @@
 }
 .ui.calendar .ui.table tr .adjacent:not(.disabled) {
   background: #F3F4F5;
+  color: #545454;
 }
 
 /*--------------
