@@ -109,7 +109,7 @@
   color: rgba(40, 40, 40, 0.3);
 }
 .ui.calendar .ui.table tr .adjacent:not(.disabled) {
-  background: #F9FAFB;
+  background: #F3F4F5;
 }
 
 /*--------------
