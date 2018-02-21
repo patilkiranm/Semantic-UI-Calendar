@@ -66,6 +66,7 @@
           focusDateUsedForRange = false,
           module
           ;
+          settings.minuteAccuracy = settings.minuteAccuracy || 5;
 
         module = {
 
@@ -203,8 +204,15 @@
               var startMonth = display.getMonth() + monthOffset;
               var year = display.getFullYear();
 
+              var minutes_columns = 3, minutes_rows = 4;
+              if(isMinute){
+                if(settings.minuteAccuracy < 5){
+                  minutes_columns = 5;
+                }
+                minutes_rows = Math.ceil(60 / (settings.minuteAccuracy*minutes_columns));
+              }
 
-              var columns = isDay ? 7 : isHour ? 4 : 3;
+              var columns = isDay ? 7 : isHour ? 4 : (isMinute ? minutes_columns: 3);
               var colspan = isDay ? (isDay && settings.week ? 8 : 7) : columns;
               var columnsString = 'three';
               switch(colspan){
@@ -221,7 +229,7 @@
                   columnsString = 'three';
                   break;
               }
-              var rows = isDay || isHour ? 6 : 4;
+              var rows = isDay || isHour ? 6 : (isMinute ? minutes_rows: 4);
               var pages = isDay ? multiMonth : 1;
 
               var container = $container;
@@ -310,7 +318,7 @@
                   for (c = 0; c < columns; c++, i++) {
                     var cellDate = isYear ? new Date(i, month, 1, hour, minute) :
                       isMonth ? new Date(year, i, 1, hour, minute) : isDay ? new Date(year, month, i, hour, minute) :
-                        isHour ? new Date(year, month, day, i) : new Date(year, month, day, hour, i * 5);
+                        isHour ? new Date(year, month, day, i) : new Date(year, month, day, hour, i * settings.minuteAccuracy);
                     var cellText = isYear ? i :
                       isMonth ? settings.text.monthsShort[i] : isDay ? cellDate.getDate() :
                         formatter.time(cellDate, settings, true);
@@ -478,7 +486,7 @@
                   var mode = module.get.mode();
                   var bigIncrement = mode === 'day' ? 7 : mode === 'hour' ? 4 : 3;
                   var increment = event.keyCode === 37 ? -1 : event.keyCode === 38 ? -bigIncrement : event.keyCode == 39 ? 1 : bigIncrement;
-                  increment *= mode === 'minute' ? 5 : 1;
+                  increment *= mode === 'minute' ? settings.minuteAccuracy : 1;
                   var focusDate = module.get.focusDate() || module.get.date() || new Date();
                   var year = focusDate.getFullYear() + (mode === 'year' ? increment : 0);
                   var month = focusDate.getMonth() + (mode === 'month' ? increment : 0);
@@ -771,19 +779,19 @@
               var isYearOrMonth = isYear || mode === 'month';
               var isMinute = mode === 'minute';
               var isHourOrMinute = isMinute || mode === 'hour';
-              //only care about a minute accuracy of 5
+              //only care about a minute accuracy of settings.minuteAccuracy
               date1 = new Date(
                 isTimeOnly ? 2000 : date1.getFullYear(),
                 isTimeOnly ? 0 : isYear ? 0 : date1.getMonth(),
                 isTimeOnly ? 1 : isYearOrMonth ? 1 : date1.getDate(),
                 !isHourOrMinute ? 0 : date1.getHours(),
-                !isMinute ? 0 : 5 * Math.floor(date1.getMinutes() / 5));
+                !isMinute ? 0 : settings.minuteAccuracy * Math.floor(date1.getMinutes() / settings.minuteAccuracy));
               date2 = new Date(
                 isTimeOnly ? 2000 : date2.getFullYear(),
                 isTimeOnly ? 0 : isYear ? 0 : date2.getMonth(),
                 isTimeOnly ? 1 : isYearOrMonth ? 1 : date2.getDate(),
                 !isHourOrMinute ? 0 : date2.getHours(),
-                !isMinute ? 0 : 5 * Math.floor(date2.getMinutes() / 5));
+                !isMinute ? 0 : settings.minuteAccuracy * Math.floor(date2.getMinutes() / settings.minuteAccuracy));
               return date2.getTime() - date1.getTime();
             },
             dateEqual: function (date1, date2, mode) {
@@ -795,7 +803,8 @@
                 minDate = startDate && settings.minDate ? new Date(Math.max(startDate, settings.minDate)) : startDate || settings.minDate;
                 maxDate = settings.maxDate;
               }
-              minDate = minDate && new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate(), minDate.getHours(), 5 * Math.ceil(minDate.getMinutes() / 5));
+              minDate = minDate && new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate(), minDate.getHours(), 
+                  settings.minuteAccuracy * Math.ceil(minDate.getMinutes() / settings.minuteAccuracy));
               return !(!date ||
               (minDate && module.helper.dateDiff(date, minDate, mode) > 0) ||
               (maxDate && module.helper.dateDiff(maxDate, date, mode) > 0));
@@ -806,7 +815,8 @@
                 minDate = startDate && settings.minDate ? new Date(Math.max(startDate, settings.minDate)) : startDate || settings.minDate;
                 maxDate = settings.maxDate;
               }
-              minDate = minDate && new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate(), minDate.getHours(), 5 * Math.ceil(minDate.getMinutes() / 5));
+              minDate = minDate && new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate(), minDate.getHours(), 
+                settings.minuteAccuracy * Math.ceil(minDate.getMinutes() / settings.minuteAccuracy));
               var isTimeOnly = settings.type === 'time';
               return !date ? date :
                 (minDate && module.helper.dateDiff(date, minDate, 'minute') > 0) ?
@@ -1022,6 +1032,7 @@
     constantHeight: true, // add rows to shorter months to keep day calendar height consistent (6 rows)
     today: false,         // show a 'today/now' button at the bottom of the calendar
     week: false,          // show week numbers as first column in day mode
+    minuteAccuracy: 5,    // Minutes accuracy
     adjacentSelectable: false, // Is adjacent month day selection enabled (in day mode)
     closable: true,       // close the popup after selecting a date/time
     monthFirst: true,     // month before day when parsing/converting date from/to text
