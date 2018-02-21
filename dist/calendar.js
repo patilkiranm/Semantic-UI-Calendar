@@ -222,6 +222,12 @@
                 case 7:
                   columnsString = 'seven';
                   break;
+                case 6:
+                  columnsString = 'six';
+                  break;
+                case 5:
+                  columnsString = 'five';
+                  break;
                 case 4:
                   columnsString = 'four';
                   break;
